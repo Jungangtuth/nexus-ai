@@ -1,9 +1,11 @@
 package com.jungangtuth.nexusai.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -71,10 +73,10 @@ fun NexusApp() {
 fun ChatScreen(providers: List<ProviderConfig>, selectedId: String, onSelect: (String)->Unit,
                messages: List<ChatMessage>, input: String, onInput:(String)->Unit, loading:Boolean, onSend:()->Unit) {
     Column(Modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             providers.forEach { p ->
                 FilterChip(selected = selectedId==p.id, onClick={ onSelect(p.id) },
-                    label={ Text(p.name.take(8)) }, enabled = true)
+                    label={ Text(p.name) }, enabled = true)
             }
         }
         val current = providers.find{it.id==selectedId}
