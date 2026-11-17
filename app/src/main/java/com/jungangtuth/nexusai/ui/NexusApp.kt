@@ -1,6 +1,5 @@
 package com.jungangtuth.nexusai.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -46,7 +45,8 @@ fun NexusApp() {
             NavigationBar(containerColor = Color(0xFF141A22)) {
                 NavigationBarItem(selected = tab==0, onClick={tab=0}, icon={}, label={Text("Chat")})
                 NavigationBarItem(selected = tab==1, onClick={tab=1}, icon={}, label={Text("API Keys")})
-                NavigationBarItem(selected = tab==2, onClick={tab=2}, icon={}, label={Text("Info")})
+                NavigationBarItem(selected = tab==2, onClick={tab=2}, icon={}, label={Text("Agent")})
+                NavigationBarItem(selected = tab==3, onClick={tab=3}, icon={}, label={Text("Info")})
             }
         },
         containerColor = Color(0xFF0B0F14)
@@ -63,7 +63,8 @@ fun NexusApp() {
                     }
                 }
                 1 -> SettingsScreen(providers, onSave = { providers = it; store.saveProviders(it); if (providers.none{p->p.id==selectedId && p.enabled}) selectedId = providers.first().id })
-                2 -> InfoScreen()
+                2 -> AgentScreen()
+                3 -> InfoScreen()
             }
         }
     }
@@ -135,11 +136,28 @@ fun SettingsScreen(providers: List<ProviderConfig>, onSave:(List<ProviderConfig>
 }
 
 @Composable
+fun AgentScreen() {
+    var backendUrl by remember { mutableStateOf("") }
+    var status by remember { mutableStateOf("Belum terhubung ke backend agen.") }
+    LazyColumn(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        item { Text("Agent Mode (Target B) - MVP", style=MaterialTheme.typography.titleLarge, fontWeight=FontWeight.Bold) }
+        item { Text("NEXUS v2 menyiapkan UI klien untuk agen penuh (seperti opencode): baca/edit kode, jalankan perintah, dan alur multi-langkah. Eksekusi dilakukan di backend/workspace terisolasi, bukan di dalam APK.", color=Color.LightGray) }
+        item { OutlinedTextField(value=backendUrl, onValueChange={backendUrl=it}, label={Text("URL Backend Agen (contoh: https://server/agent)")}, modifier=Modifier.fillMaxWidth(), singleLine=true) }
+        item { Button(onClick={ status = if(backendUrl.isBlank()) "Masukkan URL backend." else "Konfigurasi tersimpan lokal (MVP). Koneksi & eksekusi alat memerlukan backend Target B yang kompatibel." }) { Text("Simpan / Cek Koneksi") } }
+        item { Text(status, color=Color(0xFF00B0FF)) }
+        item { Divider() }
+        item { Text("Mitigasi & kontrol (direncanakan):", fontWeight=FontWeight.SemiBold) }
+        item { Text("• Sandbox/workspace terisolasi untuk eksekusi.\n• Izin eksplisit & pratinjau diff sebelum aksi berisiko.\n• Batas perintah/sumber daya.\n• Kelola rahasia aman (tanpa log).\n• Wajib review/CI sebelum merge.", color=Color.Gray) }
+        item { Text("Catatan: backend agen penuh dan unduhan APK otomatis ke Download dari hasil build belum terintegrasi penuh pada v2 ini.", color=Color(0xFFFFB74D)) }
+    }
+}
+
+@Composable
 fun InfoScreen() {
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("NEXUS AI v1 (MVP)", style=MaterialTheme.typography.titleLarge, fontWeight=FontWeight.Bold)
+        Text("NEXUS AI v2 (MVP)", style=MaterialTheme.typography.titleLarge, fontWeight=FontWeight.Bold)
         Text("Aplikasi multi-model: OpenAI, Gemini, Claude, DeepSeek, OpenRouter.")
-        Text("Fitur MVP: chat, ganti provider, simpan API key terenkripsi lokal, UI dark futuristik.")
-        Text("Catatan: streaming, compare panel penuh, dashboard token/biaya, coding agent & upload file memerlukan pengembangan lanjutan dan endpoint/provider yang sesuai.", color=Color.Gray)
+        Text("Baru di v2: layar Agent Mode (Target B) sebagai fondasi integrasi backend agen (alat file/eksekusi) dengan kontrol & mitigasi.")
+        Text("Fitur MVP: chat, ganti provider, simpan API key terenkripsi lokal, UI dark futuristik.", color=Color.Gray)
     }
 }
